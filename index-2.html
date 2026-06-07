@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>حين خذلني اليقين</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Noto+Naskh+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f5f0e8;
+    --warm-white: #faf7f2;
+    --ink: #1a1410;
+    --ink-light: #3d3028;
+    --rose-muted: #c9897a;
+    --rose-pale: #e8c4bb;
+    --gold: #b8965a;
+    --gold-pale: #e8d9bb;
+    --sage: #7a9a8a;
+    --smoke: #9a9090;
+    --paper: #ede8df;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--cream); color:var(--ink); font-family:'Noto Naskh Arabic',serif; min-height:100vh; display:flex; align-items:center; justify-content:center; overflow-x:hidden; }
+  body::before { content:''; position:fixed; inset:0; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E"); pointer-events:none; z-index:0; }
+  #app { position:relative; z-index:1; width:100%; max-width:680px; padding:20px; min-height:100vh; display:flex; flex-direction:column; justify-content:center; }
+
+  /* TITLE */
+  #title-screen { text-align:center; padding:60px 20px; animation:fadeIn 1.5s ease; }
+  .title-ornament { font-family:'Amiri',serif; font-size:2rem; color:var(--gold); letter-spacing:.3em; margin-bottom:30px; opacity:.7; }
+  .title-main { font-family:'Amiri',serif; font-size:clamp(2.2rem,7vw,3.5rem); color:var(--ink); line-height:1.3; margin-bottom:12px; font-weight:700; }
+  .title-sub { font-size:1rem; color:var(--smoke); margin-bottom:50px; font-style:italic; line-height:1.8; }
+  .title-divider { width:80px; height:1px; background:var(--gold); margin:30px auto; opacity:.5; }
+  .author-note { font-size:.9rem; color:var(--ink-light); line-height:2; max-width:480px; margin:0 auto 50px; padding:24px; background:var(--paper); border-right:3px solid var(--rose-muted); text-align:right; }
+  .btn-primary { display:inline-block; padding:14px 48px; background:var(--ink); color:var(--cream); font-family:'Noto Naskh Arabic',serif; font-size:1.1rem; border:none; cursor:pointer; letter-spacing:.05em; transition:all .3s ease; position:relative; overflow:hidden; }
+  .btn-primary::after { content:''; position:absolute; inset:0; background:var(--rose-muted); transform:translateX(100%); transition:transform .3s ease; }
+  .btn-primary:hover::after { transform:translateX(0); }
+  .btn-primary span { position:relative; z-index:1; }
+
+  /* GAME */
+  #game-screen { display:none; }
+  .progress-bar { width:100%; height:2px; background:var(--gold-pale); margin-bottom:32px; }
+  .progress-fill { height:100%; background:var(--gold); transition:width .4s ease; }
+  .meter-section { display:flex; align-items:center; gap:16px; margin-bottom:28px; padding:14px 20px; background:var(--paper); border:1px solid var(--gold-pale); }
+  .meter-label { font-size:.8rem; color:var(--smoke); white-space:nowrap; }
+  .meter-bar { flex:1; height:4px; background:var(--gold-pale); border-radius:2px; overflow:hidden; }
+  .meter-fill { height:100%; background:linear-gradient(to left,var(--rose-muted),var(--gold)); border-radius:2px; transition:width .6s ease; }
+  .meter-value { font-size:.8rem; color:var(--rose-muted); font-weight:600; white-space:nowrap; }
+  .chapter-label { font-size:.75rem; color:var(--smoke); letter-spacing:.15em; margin-bottom:8px; }
+  .scene-title { font-family:'Amiri',serif; font-size:clamp(1.5rem,5vw,2.2rem); color:var(--ink); margin-bottom:28px; line-height:1.4; border-bottom:1px solid var(--gold-pale); padding-bottom:18px; }
+  .narrative-box { background:var(--warm-white); border:1px solid var(--gold-pale); padding:32px 36px; margin-bottom:28px; line-height:2.2; font-size:1.05rem; color:var(--ink-light); animation:slideIn .5s ease; position:relative; }
+  .narrative-box::before { content:''; position:absolute; top:0; right:0; width:3px; height:100%; background:linear-gradient(to bottom,var(--rose-muted),var(--gold)); opacity:.4; }
+  .emotion-tag { display:inline-block; font-size:.75rem; color:var(--rose-muted); border:1px solid var(--rose-pale); padding:3px 10px; margin-bottom:16px; border-radius:2px; letter-spacing:.1em; }
+  .choices-container { display:flex; flex-direction:column; gap:12px; margin-bottom:30px; animation:slideIn .5s ease .2s both; }
+  .choice-btn { padding:16px 24px; background:transparent; border:1px solid var(--ink-light); color:var(--ink); font-family:'Noto Naskh Arabic',serif; font-size:1rem; cursor:pointer; text-align:right; transition:all .25s ease; line-height:1.6; position:relative; overflow:hidden; }
+  .choice-btn::before { content:''; position:absolute; inset:0; background:var(--paper); transform:translateX(100%); transition:transform .25s ease; }
+  .choice-btn:hover::before { transform:translateX(0); }
+  .choice-btn span { position:relative; z-index:1; }
+  .choice-btn:hover { border-color:var(--rose-muted); color:var(--ink); }
+  .choice-arrow { float:left; opacity:0; transition:opacity .2s; color:var(--rose-muted); }
+  .choice-btn:hover .choice-arrow { opacity:1; }
+  .consequence-box { background:var(--paper); border-right:3px solid var(--sage); padding:20px 24px; margin-bottom:24px; font-size:.95rem; color:var(--ink-light); font-style:italic; animation:fadeIn .5s ease; line-height:1.9; }
+  .continue-btn { padding:12px 32px; background:var(--ink); color:var(--cream); border:none; font-family:'Noto Naskh Arabic',serif; font-size:1rem; cursor:pointer; transition:opacity .2s; display:block; margin:0 auto; }
+  .continue-btn:hover { opacity:.8; }
+
+  /* ENDING */
+  #ending-screen { display:none; text-align:center; padding:40px 20px; animation:fadeIn 1s ease; }
+  .ending-icon { font-size:3rem; margin-bottom:20px; }
+  .ending-title { font-family:'Amiri',serif; font-size:clamp(1.8rem,5vw,2.8rem); color:var(--ink); margin-bottom:16px; line-height:1.4; }
+  .ending-subtitle { font-size:.85rem; color:var(--rose-muted); letter-spacing:.1em; margin-bottom:30px; }
+  .ending-text { font-size:1rem; color:var(--ink-light); line-height:2.2; max-width:520px; margin:0 auto 36px; padding:28px 32px; background:var(--warm-white); border:1px solid var(--gold-pale); text-align:right; }
+  .ending-quote { font-family:'Amiri',serif; font-size:1.15rem; color:var(--smoke); font-style:italic; margin-bottom:40px; line-height:1.8; }
+  .restart-btn { padding:12px 36px; background:transparent; border:1px solid var(--ink); color:var(--ink); font-family:'Noto Naskh Arabic',serif; font-size:.95rem; cursor:pointer; transition:all .25s ease; }
+  .restart-btn:hover { background:var(--ink); color:var(--cream); }
+
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  @keyframes slideIn { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div id="title-screen">
+    <div class="title-ornament">❧ ✦ ❧</div>
+    <h1 class="title-main">حين خذلني اليقين</h1>
+    <p class="title-sub">رواية تفاعلية</p>
+    <div class="title-divider"></div>
+    <div class="author-note">
+      هذه الحكاية ليست عن حب مثالي، ولا عن خيانة صاخبة.<br>
+      بل عن تفاصيل صغيرة تتراكم بصمت حتى تصنع وجعًا كاملًا.<br><br>
+      ستعيشها من الداخل. قراراتك ستحدد كيف ينتهي كل شيء.
+    </div>
+    <button class="btn-primary" onclick="startGame()"><span>ابدأ الرحلة</span></button>
+  </div>
+
+  <div id="game-screen">
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="meter-section">
+      <span class="meter-label">قوة القلب</span>
+      <div class="meter-bar"><div class="meter-fill" id="heart-fill" style="width:50%"></div></div>
+      <span class="meter-value" id="heart-value">50%</span>
+    </div>
+    <div id="scene-content"></div>
+  </div>
+
+  <div id="ending-screen">
+    <div class="ending-icon" id="ending-icon"></div>
+    <h2 class="ending-title" id="ending-title"></h2>
+    <div class="ending-subtitle" id="ending-subtitle"></div>
+    <div class="ending-text" id="ending-text"></div>
+    <p class="ending-quote" id="ending-quote"></p>
+    <button class="restart-btn" onclick="restart()">← العب مجدداً</button>
+  </div>
+
+</div>
+<script>
+let state = { heart:50, trust:50, choices:[] };
+let currentScene = 0;
+
+const scenes = [
+  {
+    chapter:"الفصل الأول", title:"قبل أن ينكسر القلب", emotion:"اطمئنان هش",
+    text:`كنتِ تعيشين هدوءًا يشبه الاطمئنان، أو هكذا بدا لكِ. حياتكِ مستقرة بما يكفي، قلبكِ يبحث عن شيء حقيقي لكنه لا يعجل.\n\nثم دخل حياتكِ. لم يكن ثمة لحظة درامية — كان حضوره هادئًا، يشبه الاطمئنان الذي يأتي دون سابق إنذار.\n\nحين ابتسم في أول لقاء وقال: "أنا أحب الأشياء البسيطة"، شعرتِ بشيء يلمس قلبكِ برفق.`,
+    choices:[
+      {text:"ابتسمتِ وقلتِ: أنا أيضًا. ربما هذا ما يجمعنا.", effect:{heart:+5,trust:+5}, consequence:"بدا مرتاحًا. تلك الكلمة البسيطة فتحت بابًا صغيرًا."},
+      {text:"رددتِ بهدوء: نرى، الأشياء لا تُعرف من أول لقاء.", effect:{heart:0,trust:+10}, consequence:"لاحظ حذرك. لم يضغط. شيء ما في ذلك أعجبكِ."},
+      {text:"صمتِّ وابتسمتِ فقط، دون كلام.", effect:{heart:+8,trust:0}, consequence:"الصمت قال ما لم تستطيعي الكلام عنه."}
+    ]
+  },
+  {
+    chapter:"الفصل الثاني", title:"المسافة الأولى", emotion:"قلق يتسلل",
+    text:`أرسل رسالة قصيرة: «سأتأخر قليلًا، لا تقلقي.»\n\nمرت ساعة، ثم أخرى. الهاتف صامت. كنتِ تراقبين الوقت وكأنه يتحرك ببطء متعمد.\n\nحين اتصل أخيرًا، جاء صوته هادئًا أكثر من اللازم. قال: "كنت مشغولًا." لم يسألك كيف أنتِ.\n\nفي اليوم التالي قلتِ له بهدوء: "تأخرت البارحة." نظر إليكِ سريعًا ثم قال: "قلت لك إنني كنت مشغولًا."`,
+    choices:[
+      {text:"تركتِ الأمر وابتسمتِ. لا تريدين أن تبدي متطلبة.", effect:{heart:-10,trust:-8}, consequence:"ابتلعتِ القلق. لكن شيئًا صغيرًا انكسر في داخلك."},
+      {text:"قلتِ بهدوء: أفهم المشغولية، لكن رسالة صغيرة كانت تكفي.", effect:{heart:+5,trust:+10}, consequence:"توقف لحظة. ثم قال: عندك حق. شعرتِ بشيء يستقر."},
+      {text:"سألتِه مباشرة: هل كل شيء بخير بيننا؟", effect:{heart:0,trust:+5}, consequence:"نظر إليكِ ثم قال: طبعًا. لكن نبرته لم تكن مطمئنة تمامًا."}
+    ]
+  },
+  {
+    chapter:"الفصل الثالث", title:"حين بدأتِ تثقين", emotion:"انفتاح حذر",
+    text:`قال لكِ ذات مرة: "لا تجبري نفسكِ على الكلام. أنا هنا حتى لو سكتِّ."\n\nالجملة بسيطة، لكنها لامست شيئًا عميقًا. مع الوقت بدأ الصمت يخف. حكيتِ له أشياء لم تعتادي قولها — أفكارًا ناقصة، مخاوف غير مرتبة.\n\nذات يوم طرح سؤالًا شخصيًا: "ما الذي يخيفكِ فعلًا؟"`,
+    choices:[
+      {text:"أجبتِ بصدق: أخاف من التعلق ثم الخسارة.", effect:{heart:+8,trust:+12}, consequence:"أمسك بيديكِ برفق وقال: أنا هنا. شعرتِ بدفء حقيقي."},
+      {text:"ابتسمتِ وقلتِ: أشياء كثيرة. ربما لاحقًا.", effect:{heart:+3,trust:+3}, consequence:"لم يلح. أعجبكِ ذلك. الثقة تحتاج وقتًا."},
+      {text:"قلتِ: أخاف من أن لا يكون الناس كما يبدون.", effect:{heart:+5,trust:+8}, consequence:"نظر إليكِ طويلًا ثم قال: أفهم. شيء ما في نظرته أقلقكِ قليلًا."}
+    ]
+  },
+  {
+    chapter:"الفصل السادس", title:"وعود غير معلنة", emotion:"أمان يبدأ بالهشاشة",
+    text:`قال لكِ مرة: "لا أحب أن أترككِ تنتظرين."\n\nتلك الجملة استقرت في داخلكِ كضمان غير معلن. بدأتِ ترتبين يومكِ على إيقاعه دون أن تنتبهي.\n\nلكن في إحدى المرات، تأخر عن موعد اعتدتماه — ولأول مرة لم يعتذر كعادته. حين سألتِه، قال باختصار: "نسيت."`,
+    choices:[
+      {text:"قلتِ بهدوء: لا بأس، لكن كان يمكنك إخباري.", effect:{heart:+5,trust:+8}, consequence:"اعتذر. لكن الاعتذار بدا مختلفًا عن المعتاد — أقل دفئًا."},
+      {text:"تجاهلتِ الأمر تمامًا. لا تريدين أن تكوني ثقيلة.", effect:{heart:-12,trust:-5}, consequence:"نمت تلك الليلة وشيء ما يؤلمكِ دون أن تعرفي لماذا."},
+      {text:"قلتِ: هل أنت بخير؟ ألاحظ شيئًا مختلفًا.", effect:{heart:+3,trust:+10}, consequence:"توقف. ثم قال: فقط مشغول. لكن عيناه قالتا شيئًا آخر."}
+    ]
+  },
+  {
+    chapter:"الفصل الثامن", title:"إشارات لم تفهميها", emotion:"ضباب يتكاثف",
+    text:`بدأتِ تلاحظين أشياء. يتأخر أكثر، يعتذر أقل. الرسائل أقصر. حين تتحدثين يسمع، لكن دون ذلك التركيز الذي اعتدتِه.\n\nحكيتِ له عن أمر أزعجكِ — لم يكن كبيرًا. اكتفى بالقول: "ستمر."\n\nتوقفتِ عند الكلمة أكثر مما ينبغي. لم تشعري بالاحتواء. لم تشعري بالرفض. بل بشيء ثالث لا اسم له.`,
+    choices:[
+      {text:"سألتِه مباشرة: أشعر أن شيئًا تغير. هل أنت بخير؟", effect:{heart:+10,trust:+12}, consequence:"توقف. ثم قال ببطء: ربما أمر بمرحلة صعبة. شعرتِ بشيء يتنفس."},
+      {text:"لمتِ نفسكِ: ربما أنا من تغيرت وأطلب الكثير.", effect:{heart:-15,trust:-12}, consequence:"ليلة صعبة. تساؤلات لا تنتهي. نمتِ متأخرة."},
+      {text:"قررتِ المراقبة أسبوعًا آخر قبل أي كلام.", effect:{heart:-5,trust:0}, consequence:"الأسبوع مر. لم يتغير شيء. لكن الثقة بنفسكِ تآكلت قليلًا."}
+    ]
+  },
+  {
+    chapter:"الفصل الحادي عشر", title:"محاولة أخيرة", emotion:"شجاعة هادئة",
+    text:`جلستِ مع نفسكِ طويلًا. أعدتِ صياغة الكلمات أكثر من مرة. حذفتِ جملًا بدت ضعيفة.\n\nكتبتِ له أخيرًا: "أشعر أننا ابتعدنا، ولا أعرف إن كنتَ تشعر بالأمر ذاته."\n\nتأخر الرد. حين جاء، لم يكن قاسيًا ولكن لم يكن مطمئنًا. قال إن الأمور معقدة وإنه مشغول وإنه لا يقصد البعد.\n\nقرأتِ الرسالة أكثر من مرة. بحثتِ بين السطور عن رغبة حقيقية في البقاء.`,
+    choices:[
+      {text:"أجبتِ: أحتاج أن أعرف إن كنا في نفس المكان أم لا.", effect:{heart:+15,trust:+15}, consequence:"صمت طويل. ثم كتب: لا أعرف. وكانت تلك أصدق إجابة سمعتِها منه."},
+      {text:"تركتِ الحديث عند هذا الحد. شعرتِ أن أي كلمة ستكون تنازلًا.", effect:{heart:+10,trust:+8}, consequence:"لأول مرة منذ زمن، نمتِ دون أن تضعي الهاتف قربكِ."},
+      {text:"اعتذرتِ وقلتِ: ربما أنا من بالغت. دعينا ننسى.", effect:{heart:-20,trust:-20}, consequence:"قال: شكرًا. ولم تشعري بأن الشكر يعني له ما تريدين."}
+    ]
+  },
+  {
+    chapter:"الفصل الثالث عشر", title:"الإدراك", emotion:"وضوح مؤلم",
+    text:`جلستِ مع نفسكِ في لحظات صمت. سألتِها أسئلة كنتِ تهربين منها:\n\nهل ما زلتِ تنتظرين؟ وإن كنتِ تنتظرين — فماذا بالضبط؟\n\nاكتشفتِ أنكِ لم تعودي تنتظرين عودته ولا تفسيره ولا حتى اعتذاره. كنتِ تنتظرين شعورًا قديمًا لم يعد موجودًا.\n\nسألتِ نفسكِ: هل أحببتُه؟ أم أحببتُ النسخة التي أصبحتُها معه؟`,
+    choices:[
+      {text:"اعترفتِ: الاثنان. أحببته وأحببتُ من أصبحتِ معه.", effect:{heart:+12,trust:+15}, consequence:"البكاء جاء أخيرًا. ليس انهيارًا — بل تحررًا."},
+      {text:"أجبتِ نفسكِ: لا أعرف. وهذا كافٍ الآن.", effect:{heart:+8,trust:+10}, consequence:"الأسئلة بلا إجابات ليست فشلًا. أحيانًا هي بداية."},
+      {text:"قررتِ أن لا تفكري أكثر وتمضي.", effect:{heart:+5,trust:+5}, consequence:"الأيام تمضي. الجروح تلتئم ببطء حتى لو لم نسمها."}
+    ]
+  }
+];
+
+function getEnding() {
+  const h=state.heart, t=state.trust;
+  if(h>=75&&t>=70) return {icon:"🌿",title:"الاستعادة",subtitle:"نهاية الوعي بالذات",text:"خرجتِ من هذه التجربة بشيء لا يُشترى: معرفة نفسك.\n\nلم تُخسري. تعلمتِ أن تثقي دون أن تفقدي نفسكِ. تعلمتِ أن تقولي كلمتك حين يحتاجها قلبكِ.\n\nما بُني ثم انهار — ليس هدرًا. إنه سماد لكل ما سينمو بعده.",quote:"خرجت بشيء أثمن: معرفة نفسي وحدودي وما أستحقه فعلًا"};
+  if(h>=55&&t>=50) return {icon:"🕯",title:"الهدوء الهش",subtitle:"نهاية الفهم المتأخر",text:"فهمتِ الآن — متأخرة قليلًا، لكن بصدق.\n\nالخيبة لم تكسركِ. غيّرتكِ. جعلتكِ أكثر انتباهًا لنفسكِ، أكثر حرصًا على قلبكِ.\n\nلا يزال الطريق أمامكِ، وقدمك الآن أكثر ثباتًا.",quote:"الخيبة لا تُلغي صدق المشاعر، بل تُعيد ترتيبها"};
+  if(h>=35) return {icon:"🌧",title:"في المنتصف",subtitle:"نهاية الانتظار",text:"لم تكن كل القرارات سهلة. أحيانًا اخترتِ الصمت حين كان القلب يستحق الكلام.\n\nلكنكِ ما زلتِ هنا. تتعلمين. تتنفسين.\n\nالألم الذي لم يقتلكِ يعلّمكِ كيف تعيشين بشكل مختلف.",quote:"بعض الأسئلة لا تغير النتيجة، بل تؤخر السلام"};
+  return {icon:"💔",title:"الجرح المفتوح",subtitle:"نهاية الصمت الثقيل",text:"اخترتِ في كل مرة أن تبتلعي القلق وتمنحي الأعذار.\n\nهذا لم يكن ضعفًا — كان خوفًا. والخوف يُفهم.\n\nلكن الآن وقد قرأتِ نهايتك — ربما الوقت أن تعودي وتجربي من جديد. أنتِ تستحقين أن تختاري نفسكِ.",quote:"حين يتنازل القلب كثيرًا، يتعلم الألم قبل الخيانة"};
+}
+
+function startGame() {
+  document.getElementById('title-screen').style.display='none';
+  document.getElementById('game-screen').style.display='block';
+  state={heart:50,trust:50,choices:[]};
+  currentScene=0;
+  renderScene();
+}
+
+function renderScene() {
+  const s=scenes[currentScene];
+  updateMeters(); updateProgress();
+  document.getElementById('scene-content').innerHTML=`
+    <div class="chapter-label">${s.chapter}</div>
+    <h2 class="scene-title">${s.title}</h2>
+    <div class="narrative-box">
+      <div class="emotion-tag">${s.emotion}</div>
+      <div style="white-space:pre-line">${s.text}</div>
+    </div>
+    <div class="choices-container" id="choices">
+      ${s.choices.map((c,i)=>`<button class="choice-btn" onclick="makeChoice(${i})"><span>${c.text} <span class="choice-arrow">←</span></span></button>`).join('')}
+    </div>`;
+}
+
+function makeChoice(idx) {
+  const c=scenes[currentScene].choices[idx];
+  state.heart=Math.max(0,Math.min(100,state.heart+(c.effect.heart||0)));
+  state.trust=Math.max(0,Math.min(100,state.trust+(c.effect.trust||0)));
+  state.choices.push(idx);
+  updateMeters();
+  document.getElementById('choices').outerHTML=`
+    <div class="consequence-box">✦ ${c.consequence}</div>
+    <button class="continue-btn" onclick="nextScene()">متابعة ←</button>`;
+}
+
+function nextScene() {
+  currentScene++;
+  currentScene>=scenes.length?showEnding():renderScene();
+}
+
+function showEnding() {
+  document.getElementById('game-screen').style.display='none';
+  document.getElementById('ending-screen').style.display='block';
+  const e=getEnding();
+  document.getElementById('ending-icon').textContent=e.icon;
+  document.getElementById('ending-title').textContent=e.title;
+  document.getElementById('ending-subtitle').textContent=e.subtitle;
+  const et=document.getElementById('ending-text');
+  et.style.whiteSpace='pre-line';
+  et.textContent=e.text;
+  document.getElementById('ending-quote').textContent=`"${e.quote}"`;
+}
+
+function updateMeters() {
+  document.getElementById('heart-fill').style.width=state.heart+'%';
+  document.getElementById('heart-value').textContent=state.heart+'%';
+}
+
+function updateProgress() {
+  document.getElementById('progress-fill').style.width=((currentScene/scenes.length)*100)+'%';
+}
+
+function restart() {
+  document.getElementById('ending-screen').style.display='none';
+  document.getElementById('title-screen').style.display='block';
+}
+</script>
+</body>
+</html>
